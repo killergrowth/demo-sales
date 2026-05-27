@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /
+
+# Demo Sales Inc. — demosalesinc.com
+# Crawling disabled during development. Will be updated at launch.

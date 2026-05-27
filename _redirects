@@ -1,0 +1,7 @@
+# Demo Sales Inc. — Redirects
+# Add URL migration redirects here before any domain changes go live
+
+# Clean URL fallbacks (shouldn't be needed with folder structure but just in case)
+/about        /about/    301
+/services     /services/ 301
+/contact      /contact/  301
