@@ -1,21 +1,19 @@
-// Demo Sales — Cloudflare Worker
-// Blocks crawlers on *.pages.dev preview URLs
-// Custom domain (demosalesinc.com) passes through freely
+// KillerGrowth -- pages.dev crawler block
+// For *.pages.dev: serve blocking robots.txt at /robots.txt
+// For live domain: pass through to the static robots.txt asset
+// All other requests: pass through to static assets normally
 
 export default {
-  async fetch(request, env, ctx) {
+  async fetch(request, env) {
     const url = new URL(request.url);
-    const host = url.hostname;
-
-    // Block all traffic on *.pages.dev (preview/staging URLs)
-    if (host.endsWith('.pages.dev')) {
-      return new Response('Access restricted. This preview URL is not publicly indexed.', {
-        status: 403,
-        headers: { 'Content-Type': 'text/plain' }
+    if (url.pathname !== '/robots.txt') {
+      return env.ASSETS.fetch(request);
+    }
+    if (url.hostname.endsWith('.pages.dev')) {
+      return new Response('User-agent: *\nDisallow: /\n', {
+        headers: { 'Content-Type': 'text/plain; charset=utf-8' }
       });
     }
-
-    // Pass through to static assets on custom domain
     return env.ASSETS.fetch(request);
   }
 };

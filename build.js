@@ -47,7 +47,7 @@ const PAGES = [
 const ASSET_DIRS = ['assets', 'images'];
 
 // Root files to copy to dist/
-const ROOT_FILES = ['_redirects', 'robots.txt', '_worker.js', '_routes.json', '_headers'];
+const ROOT_FILES = ['_redirects', 'robots.txt', 'sitemap.xml', '_worker.js', '_routes.json', '_headers'];
 
 // Read partials
 const PARTS    = path.join(SRC, '_partials');
