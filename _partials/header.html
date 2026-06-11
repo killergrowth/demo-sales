@@ -1,3 +1,222 @@
+<!-- BEGIN: Age Gate -->
+<style>
+  #ddi-gate {
+    position: fixed; inset: 0; z-index: 999999;
+    background: rgba(10,10,24,0.97);
+    display: flex; align-items: center; justify-content: center; padding: 20px;
+    font-family: system-ui, -apple-system, sans-serif;
+  }
+  .ag-card {
+    background: #fff; border-radius: 16px; padding: 40px 36px;
+    max-width: 420px; width: 100%; text-align: center;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+  }
+  .ag-logo { height: 56px; margin-bottom: 24px; }
+  .ag-label { color: #c8992a; font-size: 12px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+  .ag-title { color: #1a1a2e; font-size: 26px; font-weight: 700; margin: 0 0 12px; line-height: 1.2; }
+  .ag-body { color: #666; font-size: 14px; line-height: 1.7; margin-bottom: 28px; }
+  .ag-btn-yes {
+    display: block; width: 100%; background: #c8992a; color: #fff;
+    border: none; padding: 14px 24px; border-radius: 6px;
+    font-size: 15px; font-weight: 600; cursor: pointer; margin-bottom: 12px;
+    transition: filter 0.2s;
+  }
+  .ag-btn-yes:hover { filter: brightness(1.12); }
+  .ag-btn-no {
+    display: block; width: 100%; background: transparent; color: #888;
+    border: 2px solid #ddd; padding: 12px 24px; border-radius: 6px;
+    font-size: 14px; font-weight: 500; cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .ag-btn-no:hover { border-color: #1a1a2e; color: #1a1a2e; }
+  /* Pickers */
+  .ag-pickers { display: flex; gap: 10px; justify-content: center; margin-bottom: 24px; }
+  .ag-picker-col { display: flex; flex-direction: column; align-items: center; }
+  .ag-picker-label { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #aaa; margin-bottom: 6px; }
+  .ag-picker {
+    width: 82px; height: 180px; overflow-y: scroll;
+    scroll-snap-type: y mandatory; -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; border: 2px solid #e8e4da; border-radius: 10px;
+    position: relative; background: #fff;
+  }
+  .ag-picker::-webkit-scrollbar { display: none; }
+  .ag-picker-spacer { height: 60px; flex-shrink: 0; display: block; }
+  .ag-picker-item {
+    height: 60px; display: flex; align-items: center; justify-content: center;
+    scroll-snap-align: center; font-size: 16px; font-weight: 500;
+    color: #ccc; cursor: default; user-select: none;
+  }
+  .ag-picker-overlay {
+    position: absolute; inset: 0; pointer-events: none; border-radius: 8px;
+    background: linear-gradient(to bottom, #fff 0%, rgba(255,255,255,0) 30%, rgba(255,255,255,0) 70%, #fff 100%);
+  }
+  .ag-picker-line {
+    position: absolute; left: 6px; right: 6px; top: 50%; transform: translateY(-50%);
+    height: 60px; border-top: 2px solid #c8992a; border-bottom: 2px solid #c8992a;
+    pointer-events: none; z-index: 2;
+  }
+  .ag-error { color: #dc3545; font-size: 13px; margin-bottom: 14px; display: none; }
+  .ag-bye-icon { font-size: 52px; margin-bottom: 16px; }
+  .ag-back-link { font-size: 13px; color: #aaa; cursor: pointer; text-decoration: underline; margin-top: 12px; display: inline-block; }
+  /* Nav hover color override — orange instead of navy */
+  .mainMenu > ul > li > a:before { color: #F18445 !important; }
+</style>
+
+<div id="ddi-gate">
+
+  <!-- Screen 1: Are You 21? -->
+  <div id="ag-s1" class="ag-card">
+    <img src="/assets/images/logo.svg" alt="Demo Distributors Inc." class="ag-logo" onerror="this.style.display='none'">
+    <p class="ag-label">Age Verification Required</p>
+    <h2 class="ag-title">Are You 21 or Older?</h2>
+    <p class="ag-body">This website contains information about alcoholic beverages and is intended for adults 21 years of age or older.</p>
+    <button class="ag-btn-yes" onclick="agShowBirthday()">I Am 21 or Older</button>
+    <button class="ag-btn-no" onclick="agNo()">No, I'll Need to Wait</button>
+  </div>
+
+  <!-- Screen 2: Enter Birthday -->
+  <div id="ag-s2" class="ag-card" style="display:none;">
+    <img src="/assets/images/logo.svg" alt="Demo Distributors Inc." class="ag-logo" onerror="this.style.display='none'">
+    <p class="ag-label">Confirm Your Age</p>
+    <h2 class="ag-title">Enter Your Birthday</h2>
+    <p class="ag-body" style="margin-bottom:16px;">Scroll to your birth month, day, and year.</p>
+    <div class="ag-pickers">
+      <div class="ag-picker-col">
+        <div class="ag-picker-label">Month</div>
+        <div class="ag-picker" id="ag-m">
+          <div class="ag-picker-line"></div>
+          <div class="ag-picker-spacer"></div>
+          <div class="ag-picker-item">Jan</div><div class="ag-picker-item">Feb</div>
+          <div class="ag-picker-item">Mar</div><div class="ag-picker-item">Apr</div>
+          <div class="ag-picker-item">May</div><div class="ag-picker-item">Jun</div>
+          <div class="ag-picker-item">Jul</div><div class="ag-picker-item">Aug</div>
+          <div class="ag-picker-item">Sep</div><div class="ag-picker-item">Oct</div>
+          <div class="ag-picker-item">Nov</div><div class="ag-picker-item">Dec</div>
+          <div class="ag-picker-spacer"></div>
+          <div class="ag-picker-overlay"></div>
+        </div>
+      </div>
+      <div class="ag-picker-col">
+        <div class="ag-picker-label">Day</div>
+        <div class="ag-picker" id="ag-d">
+          <div class="ag-picker-line"></div>
+          <div class="ag-picker-spacer"></div>
+          <div id="ag-day-items"></div>
+          <div class="ag-picker-spacer"></div>
+          <div class="ag-picker-overlay"></div>
+        </div>
+      </div>
+      <div class="ag-picker-col">
+        <div class="ag-picker-label">Year</div>
+        <div class="ag-picker" id="ag-y">
+          <div class="ag-picker-line"></div>
+          <div class="ag-picker-spacer"></div>
+          <div id="ag-year-items"></div>
+          <div class="ag-picker-spacer"></div>
+          <div class="ag-picker-overlay"></div>
+        </div>
+      </div>
+    </div>
+    <p id="ag-err" class="ag-error">You must be 21 or older to access this site.</p>
+    <button class="ag-btn-yes" onclick="agVerify()">Enter the Site</button>
+    <span class="ag-back-link" onclick="agBack()">&#8592; Go back</span>
+  </div>
+
+  <!-- Screen 3: Goodbye -->
+  <div id="ag-s3" class="ag-card" style="display:none;">
+    <div class="ag-bye-icon">&#127867;</div>
+    <p class="ag-label">Come Back When You're Ready</p>
+    <h2 class="ag-title">Have a Great Day!</h2>
+    <p class="ag-body">This website is for adults 21 and older. We hope to see you when the time is right.</p>
+  </div>
+
+</div>
+
+<script>
+(function() {
+  var gate = document.getElementById('ddi-gate');
+
+  // Already verified? Hide immediately.
+  if (localStorage.getItem('ddi_ok') === '1') {
+    gate.style.display = 'none';
+    return;
+  }
+  // Lock body scroll
+  document.body.style.overflow = 'hidden';
+
+  // Populate day items (1–31)
+  var dayContainer = document.getElementById('ag-day-items');
+  for (var d = 1; d <= 31; d++) {
+    var el = document.createElement('div');
+    el.className = 'ag-picker-item';
+    el.textContent = d;
+    dayContainer.appendChild(el);
+  }
+
+  // Populate year items (2004 down to 1920)
+  var yearContainer = document.getElementById('ag-year-items');
+  var years = [];
+  for (var y = 2004; y >= 1920; y--) years.push(y);
+  years.forEach(function(yr) {
+    var el = document.createElement('div');
+    el.className = 'ag-picker-item';
+    el.textContent = yr;
+    el.setAttribute('data-yr', yr);
+    yearContainer.appendChild(el);
+  });
+
+  // Scroll year picker to default 1990 (index = 2004 - 1990 = 14)
+  setTimeout(function() {
+    var yp = document.getElementById('ag-y');
+    yp.scrollTop = 14 * 60;
+  }, 50);
+
+  window.agShowBirthday = function() {
+    document.getElementById('ag-s1').style.display = 'none';
+    document.getElementById('ag-s2').style.display = 'block';
+  };
+
+  window.agBack = function() {
+    document.getElementById('ag-s2').style.display = 'none';
+    document.getElementById('ag-s1').style.display = 'block';
+    document.getElementById('ag-err').style.display = 'none';
+  };
+
+  window.agNo = function() {
+    document.getElementById('ag-s1').style.display = 'none';
+    document.getElementById('ag-s3').style.display = 'block';
+    // No persistent block — hard refresh resets the gate
+  };
+
+  function getPickerIndex(id) {
+    var el = document.getElementById(id);
+    return Math.round(el.scrollTop / 60);
+  }
+
+  window.agVerify = function() {
+    var mi = getPickerIndex('ag-m');          // 0–11
+    var di = getPickerIndex('ag-d') + 1;      // 1–31
+    var yi = getPickerIndex('ag-y');          // index in years array
+    var yr = years[yi];
+
+    var birth = new Date(yr, mi, di);
+    var today = new Date();
+    var age = today.getFullYear() - birth.getFullYear();
+    var mo = today.getMonth() - birth.getMonth();
+    if (mo < 0 || (mo === 0 && today.getDate() < birth.getDate())) age--;
+
+    if (age >= 21) {
+      localStorage.setItem('ddi_ok', '1');
+      gate.style.display = 'none';
+      document.body.style.overflow = '';
+    } else {
+      document.getElementById('ag-err').style.display = 'block';
+    }
+  };
+})();
+</script>
+<!-- END: Age Gate -->
+
 <!-- BEGIN: Header AREA -->
 <header class="header01 isSticky">
     <div class="container">
@@ -6,20 +225,20 @@
                 <div class="headerInner01">
                     <div class="logo">
                         <a class="dfCursor" href="/">
-                            <img src="/assets/images/logo.png" alt="Demo Sales Inc." style="height:50px;width:auto;" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
-                            <span style="display:none;font-size:22px;font-weight:700;color:#c8992a;letter-spacing:1px;">Demo Sales</span>
+                            <img src="/assets/images/logo.svg" alt="Demo Distributors Inc." style="height:54px;width:auto;transform:scale(1.5);transform-origin:left center;" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+                            <span style="display:none;font-size:22px;font-weight:700;color:#F18445;letter-spacing:1px;">Demo Distributors</span>
                         </a>
                     </div>
                     <nav class="mainMenu">
                         <ul>
                             <li><a data-title="Home" href="/"><span>Home</span></a></li>
                             <li><a data-title="Services" href="/services/"><span>Services</span></a></li>
-                            <li><a data-title="About" href="/about/"><span>About Us</span></a></li>
+                            <li><a data-title="About Us" href="/about/"><span>About Us</span></a></li>
                             <li><a data-title="Contact" href="/contact/"><span>Contact</span></a></li>
                         </ul>
                     </nav>
                     <div class="headerOniAccess">
-                        <a href="tel:3163206670" style="color:#c8992a;font-weight:600;font-size:15px;margin-right:20px;text-decoration:none;display:none;" class="d-md-inline-block">(316) 320-6670</a>
+                        <a href="tel:3163206670" style="color:#c8992a;font-weight:600;font-size:15px;margin-right:20px;text-decoration:none;cursor:pointer !important;" class="d-md-inline-block"><i class="fa-solid fa-phone" style="font-size:12px;margin-right:5px;"></i>(316) 320-6670</a>
                         <a href="javascript:void(0)" class="menu_btn"><i class="fa-solid fa-bars"></i></a>
                     </div>
                 </div>

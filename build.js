@@ -1,13 +1,15 @@
 'use strict';
 /**
- * build.js — Demo Sales Inc.
+ * build.js Ã¢â‚¬â€ Demo Sales Inc.
  * Assembles dist/ from source pages + _partials/header.html + _partials/footer.html
- * Each inner page → dist/<slug>/index.html (clean URLs)
+ * Each inner page Ã¢â€ â€™ dist/<slug>/index.html (clean URLs)
  * Run: node build.js
  * Deploy from: dist/
  */
 
 const fs   = require('fs');
+const { generateSitemap } = require('C:\\\\Users\\\\KillerGrowth\\\\.openclaw\\\\workspace\\\\tools\\\\kg-site-builder\\\\lib\\\\gen-sitemap');
+const SITE_DOMAIN = 'demosalesinc.com';
 const path = require('path');
 
 const SRC  = __dirname;
@@ -41,13 +43,13 @@ const PAGES = [
   { src: 'services.html', dest: 'services/index.html' },
   { src: 'contact.html',  dest: 'contact/index.html' },
   { src: '404.html',      dest: '404.html' },
-];
+  { src: 'thank-you.html', dest: 'thank-you/index.html' }];
 
 // Asset folders to copy as-is
 const ASSET_DIRS = ['assets', 'images'];
 
 // Root files to copy to dist/
-const ROOT_FILES = ['_redirects', 'robots.txt', 'sitemap.xml', '_worker.js', '_routes.json', '_headers'];
+const ROOT_FILES = ['_redirects', 'robots.txt', '_worker.js', '_routes.json', '_headers'];
 
 // Read partials
 const PARTS    = path.join(SRC, '_partials');
@@ -99,4 +101,7 @@ for (const page of PAGES) {
   console.log(`  [built] ${page.dest}`);
 }
 
-console.log('\n✓ Demo Sales build complete → dist/');
+console.log('\nÃ¢Å“â€œ Demo Sales build complete Ã¢â€ â€™ dist/');
+
+// Generate sitemap from actual dist/ contents
+generateSitemap({ distDir: DIST, siteRoot: SRC, domain: SITE_DOMAIN });
